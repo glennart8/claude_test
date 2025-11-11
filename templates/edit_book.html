@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redigera bok</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: white;
+            --border-color: #ddd;
+            --label-color: #555;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2d2d2d;
+            --border-color: #404040;
+            --label-color: #b0b0b0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        h1 {
+            color: var(--text-color);
+            text-align: center;
+        }
+        form {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--label-color);
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .progress-value {
+            text-align: center;
+            font-size: 18px;
+            color: #3498db;
+            margin-top: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+        .cancel-btn {
+            background-color: #95a5a6;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cancel-btn:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Redigera bok</h1>
+    <form method="POST">
+        <div class="form-group">
+            <label for="title">Titel:</label>
+            <input type="text" id="title" name="title" value="{{ book.title }}" required>
+        </div>
+        <div class="form-group">
+            <label for="author">Författare:</label>
+            <input type="text" id="author" name="author" value="{{ book.author }}" required>
+        </div>
+        <div class="form-group">
+            <label for="year">År:</label>
+            <input type="number" id="year" name="year" value="{{ book.year }}" min="1000" max="2100" required>
+        </div>
+        <div class="form-group">
+            <label for="status">Lässtatus:</label>
+            <select id="status" name="status" onchange="toggleFields()">
+                <option value="unread" {% if book.status == 'unread' %}selected{% endif %}>Vill läsa</option>
+                <option value="reading" {% if book.status == 'reading' %}selected{% endif %}>Läser nu</option>
+                <option value="read" {% if book.status == 'read' %}selected{% endif %}>Läst</option>
+            </select>
+        </div>
+        <div class="form-group hidden" id="date-group">
+            <label for="date_read">Datum läst:</label>
+            <input type="date" id="date_read" name="date_read" value="{{ book.date_read or '' }}">
+        </div>
+        <div class="form-group hidden" id="progress-group">
+            <label for="progress">Läsprogress:</label>
+            <input type="range" id="progress" name="progress" min="0" max="100" value="{{ book.progress or 0 }}" oninput="updateProgress()">
+            <div class="progress-value" id="progress-value">{{ book.progress or 0 }}%</div>
+        </div>
+        <div class="button-group">
+            <button type="submit" class="submit-btn">Spara ändringar</button>
+            <a href="{{ url_for('index') }}" class="cancel-btn">Avbryt</a>
+        </div>
+    </form>
+
+    <script>
+        function toggleFields() {
+            const status = document.getElementById('status').value;
+            const dateGroup = document.getElementById('date-group');
+            const progressGroup = document.getElementById('progress-group');
+
+            if (status === 'read') {
+                dateGroup.classList.remove('hidden');
+                progressGroup.classList.add('hidden');
+            } else if (status === 'reading') {
+                progressGroup.classList.remove('hidden');
+                dateGroup.classList.add('hidden');
+            } else {
+                dateGroup.classList.add('hidden');
+                progressGroup.classList.add('hidden');
+            }
+        }
+
+        function updateProgress() {
+            const progress = document.getElementById('progress').value;
+            document.getElementById('progress-value').textContent = progress + '%';
+        }
+
+        // Initialize on page load
+        toggleFields();
+
+        // Load dark mode preference
+        window.addEventListener('DOMContentLoaded', () => {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
+</body>
+</html>
