@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokbibliotek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .book-list {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .book {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .book:last-child {
+            border-bottom: none;
+        }
+        .book-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .book-author {
+            color: #666;
+            margin-top: 5px;
+        }
+        .book-year {
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mitt Bokbibliotek</h1>
+    <div class="book-list">
+        {% for book in books %}
+        <div class="book">
+            <div class="book-title">{{ book.title }}</div>
+            <div class="book-author">Av: {{ book.author }}</div>
+            <div class="book-year">Publicerad: {{ book.year }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
